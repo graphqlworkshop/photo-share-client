@@ -5,104 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Incorporate Apollo Upload Client
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-`yarn add apollo-upload-client`
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-__src/photo-share-client.js__
-```javascript
-import { createUploadLink } from 'apollo-upload-client'
+### Create Client and Render Provider
 
-...
-
-const httpLink = createUploadLink({
-    includeExtensions: true,
-    uri: 'http://localhost:4000/graphql'
-})
-```
-
-### Add the Post Photo Mutation
-
-__src/operations.js__
-```javascript
-export const POST_PHOTO = gql`
-    mutation addPhoto($input: PostPhotoInput!) {
-        postPhoto(input:$input) {
-            id
-            name
-            url
-            created
-            postedBy {
-                avatar
-                name
-            }
-        }
-    }
-`
-```
-
-### Add Routes for Post Photo Form
-
-__src/components/App.js__
-```javascript
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import PostPhoto from './PostPhoto'
-
-...
-
-render() {
-    return (
-        <BrowserRouter>
-            <UserInterface menu={<Menu />}>
-                <Switch>
-                    <Route exact path="/" component={Photos} />
-                    <Route path="/newPhoto" component={PostPhoto} />
-                </Switch>
-            </UserInterface>
-        </BrowserRouter>
-    )
-}
-```
-
-### Connect the Post Photo Form
-
-__src/components/PostPhoto.js__
+__src/index.js__
 ```javascript
 import React from 'react'
-import { POST_PHOTO } from '../operations'
-import { Mutation } from 'react-apollo'
-import { PostPhotoForm } from './ui'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-const PostPhoto = ({ history, location }) => {
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-    const photoFile = location.state && location.state.photoToUpload
-    const photoSrc = location.state && location.state.photoSrc
-    const token = localStorage.getItem('token')
-
-    if (!token) {
-        history.replace('/')
-    }
-
-    return (
-        <Mutation mutation={POST_PHOTO}>
-            {mutation => 
-                <PostPhotoForm 
-                    photoFile={photoFile} 
-                    photoSrc={photoSrc} 
-                    onSubmit={input => {
-                        console.log(input)
-                        mutation({ variables: { input }})
-                            .then(() => history.push('/'))
-                            .catch(console.error)
-                    }} 
-                />
-            }
-        </Mutation>
-    )
-}
-    
-
-export default PostPhoto    
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -112,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
