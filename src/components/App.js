@@ -1,49 +1,40 @@
-import React, { Component, Fragment } from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { withApollo } from 'react-apollo'
-import AuthorizedUser from './AuthorizedUser'
-import Users from './Users'
-import Photos from './Photos'
-import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
-import { UserInterface } from './ui'
+import React from 'react'
+import { gql } from 'apollo-boost'
+import { Query } from 'react-apollo'
 
-const Menu = () => 
-    <Fragment>
-        <AuthorizedUser />,
-        <Users />
-    </Fragment>
-
-class App extends Component {
-
-    componentDidMount() {
-        let { client } = this.props
-        this.listenForUsers = client
-            .subscribe({ query: LISTEN_FOR_USERS })
-            .subscribe(({ data:{ newUser } }) => {
-                const data = client.readQuery({ query: ROOT_QUERY })
-                data.totalUsers += 1
-                data.allUsers = [
-                    ...data.allUsers,
-                    newUser
-                ]
-                client.writeQuery({ query: ROOT_QUERY, data })
-            }) 
+const ALL_USERS = gql`
+    query users {
+        totalUsers
+        allUsers {
+            githubLogin
+            avatar
+            name
+        }
     }
+`
 
-    componentWillUnmount() {
-        this.listenForUsers.unsubscribe()
-    }
+const Users = () =>
+    <Query query={ALL_USERS}>
+        {({ data, loading }) => loading ?
+            <p>loading...</p> :
+            <div>
+                <p>total Users: {data.totalUsers}</p>
+                <ul>
+                    {data.allUsers.map(user => 
+                        <li key={user.githubLogin}> 
+                            <img src={user.avatar} width={48} height={48} alt="" />
+                            {user.name}
+                        </li>
+                    )}
+                </ul>
+            </div>
+            
+        }
+    </Query>
 
-    render() {
-        return (
-            <BrowserRouter>
-                <UserInterface menu={<Menu />}>
-                   <Photos />
-                </UserInterface>
-            </BrowserRouter>
-        )
-    }
 
-}
 
-export default withApollo(App)
+const App = () => <Users />
+
+
+export default App
