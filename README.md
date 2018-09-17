@@ -5,60 +5,39 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add Subscription to Operations
+### Install dependencies
 
-__src/operations.js__
-```javascript
-export const LISTEN_FOR_USERS = gql`
-    subscription {
-        newUser {
-            ...userDetails
-        }
-    }
+`yarn add moment hammerjs`
 
-    ${FRAGMENT_USER_DETAILS}
-`
-```
+`yarn add material-ui styled-components`
 
-### Listen for new users when App component mounts
+`yarn add react-icons@2.2.7`
+
+
+### Incorporate Main User Interface with App
 
 __src/components/App.js__
 ```javascript
-import React, { Component } from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { withApollo } from 'react-apollo'
-import AuthorizedUser from './AuthorizedUser'
-import Users from './Users'
-import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
+import { UserInterface } from './ui'
+
+...
+
+const Menu = () => 
+    <Fragment>
+        <AuthorizedUser />,
+        <Users />
+    </Fragment>
 
 class App extends Component {
 
-    componentDidMount() {
-        let { client } = this.props
-        this.listenForUsers = client
-            .subscribe({ query: LISTEN_FOR_USERS })
-            .subscribe(({ data:{ newUser } }) => {
-                const data = client.readQuery({ query: ROOT_QUERY })
-                data.totalUsers += 1
-                data.allUsers = [
-                    ...data.allUsers,
-                    newUser
-                ]
-                client.writeQuery({ query: ROOT_QUERY, data })
-            }) 
-    }
-
-    componentWillUnmount() {
-        this.listenForUsers.unsubscribe()
-    }
+    ...
 
     render() {
         return (
             <BrowserRouter>
-                <div>
-                    <AuthorizedUser />
-                    <Users />
-                </div>
+                <UserInterface menu={<Menu />}>
+                    <h1>Main Content</h1>
+                </UserInterface>
             </BrowserRouter>
         )
     }
@@ -67,24 +46,6 @@ class App extends Component {
 
 export default withApollo(App)
 ```
-
-### Test with the Playground
-Adding new users with the playground will cause the users to show up in the browser.
-
-```graphql
-mutation addTestUser {
-  githubAuth(code:"TEST") {
-    token 
-    user {
-      name
-    }
-  }
-}
-```
-
-### Test with a new Tab
-Adding new users form a different tab will cause the users to render in another tab.
-
 
 Iterations
 ---------------
@@ -117,7 +78,7 @@ Iterations
 ### e. Incorporating the UI
 
 1. [x] Incorporating the Main User Interface
-2. [ ] Incorporating the UserList UI Component
+2. [x] Incorporating the UserList UI Component
 3. [ ] Adding Fake User Authorization
 4. [ ] Incorporating the Auth UI Component
 
