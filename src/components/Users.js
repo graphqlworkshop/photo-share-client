@@ -3,7 +3,7 @@ import { Query, Mutation } from 'react-apollo'
 import { ROOT_QUERY, ADD_TEST_USER } from '../operations'
 
 const Users = () =>
-    <Query query={ROOT_QUERY}>
+    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
         {({ data, loading }) => loading ?
             <p>loading...</p> :
             <div>
