@@ -5,66 +5,30 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Refactor Operations
-Move all current operations to a single file:
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/operations.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-import { gql } from 'apollo-boost'
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-// Rename ALL_USERS query to ROOT_QUERY
-export const ROOT_QUERY = gql`
-  ...
-`
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-export const ADD_TEST_USER = gql`
-  ...
-`
-
-export const GITHUB_AUTH = gql`
-  ...
-`
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
-
-### Import new ROOT_QUERY, remove pollInterval 
-
-__src/components/Users.js__
-```javascript
-import { ROOT_QUERY, ADD_TEST_USER } from '../operations'
-
-const Users = () =>
-    <Query query={ROOT_QUERY}>
-```
-
-### Refetch After Authorization
-
-__src/components/AuthorizedUser.js__
-```javascript
-import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
-
-class AuthorizedUser extends Component {
-
-    render() {
-        return (
-            <Mutation mutation={GITHUB_AUTH} 
-                update={this.authorizationComplete} 
-                refetchQueries={[{ query: ROOT_QUERY }]}>
-                {authorize => {
-
-                  ...
-                
-                }}
-            </Mutation>
-        )
-      }
-
-}
-
- export default withRouter(AuthorizedUser) 
-```
-
-### Challenge: Refetch after add Test User
-Challenge the students to refetch the `ROOT_QUERY` after a test user has been added.
 
 Iterations
 ---------------
@@ -73,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
