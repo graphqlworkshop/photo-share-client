@@ -5,29 +5,26 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Start Photo Share API on port 4000
-Make sure the [Photo Share API]() is running on port 4000.
-
-### Install Dependencies
-`yarn add graphql apollo-boost react-apollo`
-
-### Create Client and Render Provider
+### Send a Query Using the Client
 
 __src/index.js__
 ```javascript
-import React from 'react'
-import { render } from 'react-dom'
-import ApolloClient from 'apollo-boost'
-import { ApolloProvider } from 'react-apollo'
+import ApolloClient, { gql } from 'apollo-boost'
 
-const client = new ApolloClient({ uri: 'http://localhost:4000 '})
+...
 
-render(
-  <ApolloProvider client={client}>
-    <h1>Hello World</h1>
-  </ApolloProvider>,
-  document.getElementById('root')
-)  
+const TOTALS = gql`
+    query totals {
+        totalPhotos
+        totalUsers
+    }
+`
+
+client.query({ query: TOTALS })
+    .then(console.log)
+
+...
+
 ```
 
 Iterations
@@ -37,7 +34,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [ ] Sending a Test Query
+3. [x] Sending a Test Query
 
 ### b. Handling Users
 
