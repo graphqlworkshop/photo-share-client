@@ -5,68 +5,56 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Install the Web Socket Link
+### Install Apollo Cache Persist
 
-`yarn add apollo-link-ws`
+`yarn add apollo-cache-persist`
 
-### Import client from a module
-
-__src/index.js__
-```javascript
-...
-import client from './photo-share-client'
-
-render(
-  <ApolloProvider client={client}>
-    <App />
-  </ApolloProvider>,
-  document.getElementById('root')
-)  
-```
-
-### Build the Client Module
-
+### Persist the Cache
 __src/photo-share-client.js__
 ```javascript
-import { 
-    InMemoryCache, 
-    ApolloLink,
-    HttpLink,
-    ApolloClient,
-    split
-} from 'apollo-boost'
-import { WebSocketLink } from 'apollo-link-ws'
-import { getMainDefinition } from 'apollo-utilities'
+import { persistCache } from 'apollo-cache-persist'
 
 const cache = new InMemoryCache()
-const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' })
-const authLink = new ApolloLink((operation, forward) => {
-    operation.setContext(context => ({
-        headers: {
-            ...context.headers,
-            authorization: localStorage.getItem('token')
-        }
-    }))
-    return forward(operation)
+persistCache({
+    cache,
+    storage: localStorage
 })
 
-const httpAuthLink = authLink.concat(httpLink)
+if (localStorage['apollo-cache-persist']) {
+    let cacheData = JSON.parse(localStorage['apollo-cache-persist'])
+    cache.restore(cacheData)
+}
+```
 
-const wsLink = new WebSocketLink({
-    uri: `ws://localhost:4000/graphql`,
-    options: { reconnect: true }
-  })
-  
-const link = split(
-    ({ query }) => {
-        const { kind, operation } = getMainDefinition(query)
-        return kind === 'OperationDefinition' && operation === 'subscription'
-    }, 
-    wsLink,
-    httpAuthLink
-)
+### Set the Fetch Policy to Network Only
 
-export default new ApolloClient({ cache, link })
+__src/components/Users.js__
+```javascript
+const Users = () =>
+    <Query query={ROOT_QUERY} fetchPolicy="cache-only">
+```
+
+### Problem: Add a New User with the Playground
+The fetch policy is cache only, no network request will be made. To demonstrate this add some fake users via the playgound and see what happens in the browser.
+
+```graphql
+mutation addTestUser {
+  githubAuth(code:"TEST") {
+    token 
+    user {
+      name
+    }
+  }
+}
+```
+
+### Set the Fetch Policy to Cache and Network
+Not the fetch policy will start with the cache, and later hydrate that dta from the network.
+
+__src/components/Users.js__
+```javascript
+const Users = () =>
+    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
 ```
 
 Iterations
