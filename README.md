@@ -5,68 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Install the Web Socket Link
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-`yarn add apollo-link-ws`
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-### Import client from a module
+### Create Client and Render Provider
 
 __src/index.js__
 ```javascript
-...
-import client from './photo-share-client'
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
+
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
 render(
   <ApolloProvider client={client}>
-    <App />
+    <h1>Hello World</h1>
   </ApolloProvider>,
   document.getElementById('root')
 )  
-```
-
-### Build the Client Module
-
-__src/photo-share-client.js__
-```javascript
-import { 
-    InMemoryCache, 
-    ApolloLink,
-    HttpLink,
-    ApolloClient,
-    split
-} from 'apollo-boost'
-import { WebSocketLink } from 'apollo-link-ws'
-import { getMainDefinition } from 'apollo-utilities'
-
-const cache = new InMemoryCache()
-const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' })
-const authLink = new ApolloLink((operation, forward) => {
-    operation.setContext(context => ({
-        headers: {
-            ...context.headers,
-            authorization: localStorage.getItem('token')
-        }
-    }))
-    return forward(operation)
-})
-
-const httpAuthLink = authLink.concat(httpLink)
-
-const wsLink = new WebSocketLink({
-    uri: `ws://localhost:4000/graphql`,
-    options: { reconnect: true }
-  })
-  
-const link = split(
-    ({ query }) => {
-        const { kind, operation } = getMainDefinition(query)
-        return kind === 'OperationDefinition' && operation === 'subscription'
-    }, 
-    wsLink,
-    httpAuthLink
-)
-
-export default new ApolloClient({ cache, link })
 ```
 
 Iterations
@@ -76,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
