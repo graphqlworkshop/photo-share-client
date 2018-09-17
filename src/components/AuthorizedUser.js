@@ -1,15 +1,7 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import { gql } from 'apollo-boost'
 import { Mutation } from 'react-apollo'
-
-const GITHUB_AUTH_MUTATION = gql`
-    mutation authorize($code:String!) {
-        githubAuth(code:$code) {
-            token
-        }
-    }
-`
+import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
 
 class AuthorizedUser extends Component {
 
@@ -37,7 +29,7 @@ class AuthorizedUser extends Component {
 
     render() {
         return (
-            <Mutation mutation={GITHUB_AUTH_MUTATION} update={this.authorizationComplete}>
+            <Mutation mutation={GITHUB_AUTH} update={this.authorizationComplete} refetchQueries={[{ query: ROOT_QUERY }]}>
                 {authorize => {
                     this.authorize = authorize
                     return (

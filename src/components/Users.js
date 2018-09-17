@@ -1,38 +1,14 @@
 import React from 'react'
-import { gql } from 'apollo-boost'
 import { Query, Mutation } from 'react-apollo'
-
-const ALL_USERS = gql`
-    query users {
-        totalUsers
-        allUsers {
-            githubLogin
-            avatar
-            name
-        }
-    }
-`
-
-const ADD_TEST_USER = gql`
-    mutation addTestUser {
-        githubAuth(code: "TEST") {
-            token
-            user {  
-                githubLogin
-                avatar
-                name
-            }
-        }
-    }
-`
+import { ROOT_QUERY, ADD_TEST_USER } from '../operations'
 
 const Users = () =>
-    <Query query={ALL_USERS} pollInterval={1000}>
+    <Query query={ROOT_QUERY}>
         {({ data, loading }) => loading ?
             <p>loading...</p> :
             <div>
                 <p>total Users: {data.totalUsers}</p>
-                <Mutation mutation={ADD_TEST_USER}>
+                <Mutation mutation={ADD_TEST_USER} refetchQueries={[{query: ROOT_QUERY }]}>
                     {addTestUser => <button onClick={addTestUser}>Add Test User</button>}
                 </Mutation>
                 <ul>
