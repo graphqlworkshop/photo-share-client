@@ -5,92 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Create an App Component
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
+
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
 
 __src/index.js__
 ```javascript
-...
-
+import React from 'react'
+import { render } from 'react-dom'
 import ApolloClient from 'apollo-boost'
-import App from './components/App'
+import { ApolloProvider } from 'react-apollo'
 
-
-const client = new ApolloClient({ uri: 'http://localhost:4000/graphql '})
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
 render(
   <ApolloProvider client={client}>
-    <App />
+    <h1>Hello World</h1>
   </ApolloProvider>,
   document.getElementById('root')
 )  
-```
-
-__src/components/app.js__
-```javascript
-import React from 'react'
-
-const App = () => <h1>Hello World</h1>
-
-export default App
-```
-
-### Build the Query
-
-__src/components/app.js__
-```javascript
-import { gql } from 'apollo-boost'
-
-const ALL_USERS = gql`
-    query users {
-        totalUsers
-        allUsers {
-            githubLogin
-            avatar
-            name
-        }
-    }
-`
-```
-
-### Check the loading value
-
-__src/components/app.js__
-```javascript
-import { Query } from 'react-apollo'
-
-const Users = () =>
-    <Query query={ALL_USERS}>
-        {({ data, loading }) => loading ?
-            <p>Loading</p> :
-            <p>Finished Loading</p>
-        }
-    </Query>
-
-
-
-const App = () => <Users />
-
-```
-
-### Display the Data
-
-__src/components/app.js__
-```javascript
-{({ data, loading }) => loading ?
-    <p>loading...</p> :
-    <div>
-        <p>total Users: {data.totalUsers}</p>
-        <ul>
-            {data.allUsers.map(user => 
-                <li key={user.githubLogin}> 
-                    <img src={user.avatar} width={48} height={48} alt="" />
-                    {user.name}
-                </li>
-            )}
-        </ul>
-    </div>
-    
-}
 ```
 
 Iterations
@@ -100,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
