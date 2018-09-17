@@ -5,86 +5,30 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add Subscription to Operations
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/operations.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-export const LISTEN_FOR_USERS = gql`
-    subscription {
-        newUser {
-            ...userDetails
-        }
-    }
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-    ${FRAGMENT_USER_DETAILS}
-`
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
+
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
-
-### Listen for new users when App component mounts
-
-__src/components/App.js__
-```javascript
-import React, { Component } from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { withApollo } from 'react-apollo'
-import AuthorizedUser from './AuthorizedUser'
-import Users from './Users'
-import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
-
-class App extends Component {
-
-    componentDidMount() {
-        let { client } = this.props
-        this.listenForUsers = client
-            .subscribe({ query: LISTEN_FOR_USERS })
-            .subscribe(({ data:{ newUser } }) => {
-                const data = client.readQuery({ query: ROOT_QUERY })
-                data.totalUsers += 1
-                data.allUsers = [
-                    ...data.allUsers,
-                    newUser
-                ]
-                client.writeQuery({ query: ROOT_QUERY, data })
-            }) 
-    }
-
-    componentWillUnmount() {
-        this.listenForUsers.unsubscribe()
-    }
-
-    render() {
-        return (
-            <BrowserRouter>
-                <div>
-                    <AuthorizedUser />
-                    <Users />
-                </div>
-            </BrowserRouter>
-        )
-    }
-
-}
-
-export default withApollo(App)
-```
-
-### Test with the Playground
-Adding new users with the playground will cause the users to show up in the browser.
-
-```graphql
-mutation addTestUser {
-  githubAuth(code:"TEST") {
-    token 
-    user {
-      name
-    }
-  }
-}
-```
-
-### Test with a new Tab
-Adding new users form a different tab will cause the users to render in another tab.
-
 
 Iterations
 ---------------
@@ -93,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
