@@ -48,3 +48,13 @@ export const GITHUB_AUTH = gql`
 
     ${FRAGMENT_USER_DETAILS}
 `
+
+export const LISTEN_FOR_USERS = gql`
+    subscription {
+        newUser {
+            ...userDetails
+        }
+    }
+
+    ${FRAGMENT_USER_DETAILS}
+`

@@ -5,37 +5,71 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Install Apollo Cache Persist
+### Add Subscription to Operations
 
-`yarn add apollo-cache-persist`
-
-### Persist the Cache
-__src/photo-share-client.js__
+__src/operations.js__
 ```javascript
-import { persistCache } from 'apollo-cache-persist'
+export const LISTEN_FOR_USERS = gql`
+    subscription {
+        newUser {
+            ...userDetails
+        }
+    }
 
-const cache = new InMemoryCache()
-persistCache({
-    cache,
-    storage: localStorage
-})
+    ${FRAGMENT_USER_DETAILS}
+`
+```
 
-if (localStorage['apollo-cache-persist']) {
-    let cacheData = JSON.parse(localStorage['apollo-cache-persist'])
-    cache.restore(cacheData)
+### Listen for new users when App component mounts
+
+__src/components/App.js__
+```javascript
+import React, { Component } from 'react'
+import { BrowserRouter } from 'react-router-dom'
+import { withApollo } from 'react-apollo'
+import AuthorizedUser from './AuthorizedUser'
+import Users from './Users'
+import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
+
+class App extends Component {
+
+    componentDidMount() {
+        let { client } = this.props
+        this.listenForUsers = client
+            .subscribe({ query: LISTEN_FOR_USERS })
+            .subscribe(({ data:{ newUser } }) => {
+                const data = client.readQuery({ query: ROOT_QUERY })
+                data.totalUsers += 1
+                data.allUsers = [
+                    ...data.allUsers,
+                    newUser
+                ]
+                client.writeQuery({ query: ROOT_QUERY, data })
+            }) 
+    }
+
+    componentWillUnmount() {
+        this.listenForUsers.unsubscribe()
+    }
+
+    render() {
+        return (
+            <BrowserRouter>
+                <div>
+                    <AuthorizedUser />
+                    <Users />
+                </div>
+            </BrowserRouter>
+        )
+    }
+
 }
+
+export default withApollo(App)
 ```
 
-### Set the Fetch Policy to Network Only
-
-__src/components/Users.js__
-```javascript
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-only">
-```
-
-### Problem: Add a New User with the Playground
-The fetch policy is cache only, no network request will be made. To demonstrate this add some fake users via the playgound and see what happens in the browser.
+### Test with the Playground
+Adding new users with the playground will cause the users to show up in the browser.
 
 ```graphql
 mutation addTestUser {
@@ -48,14 +82,9 @@ mutation addTestUser {
 }
 ```
 
-### Set the Fetch Policy to Cache and Network
-Not the fetch policy will start with the cache, and later hydrate that dta from the network.
+### Test with a new Tab
+Adding new users form a different tab will cause the users to render in another tab.
 
-__src/components/Users.js__
-```javascript
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
-```
 
 Iterations
 ---------------
@@ -82,8 +111,8 @@ Iterations
 ### d. Incorporating Subscriptions
 
 1. [x] Adding a WebSocket Link
-2. [ ] Persisting Data
-3. [ ] Subscribing to new users
+2. [x] Persisting Data
+3. [x] Subscribing to new users
 
 ### e. Incorporating the UI
 
