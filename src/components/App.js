@@ -1,6 +1,6 @@
 import React from 'react'
 import { gql } from 'apollo-boost'
-import { Query } from 'react-apollo'
+import { Query, Mutation } from 'react-apollo'
 
 const ALL_USERS = gql`
     query users {
@@ -13,12 +13,28 @@ const ALL_USERS = gql`
     }
 `
 
+const ADD_TEST_USER = gql`
+    mutation addTestUser {
+        githubAuth(code: "TEST") {
+            token
+            user {  
+                githubLogin
+                avatar
+                name
+            }
+        }
+    }
+`
+
 const Users = () =>
-    <Query query={ALL_USERS}>
+    <Query query={ALL_USERS} pollInterval={1000}>
         {({ data, loading }) => loading ?
             <p>loading...</p> :
             <div>
                 <p>total Users: {data.totalUsers}</p>
+                <Mutation mutation={ADD_TEST_USER}>
+                    {addTestUser => <button onClick={addTestUser}>Add Test User</button>}
+                </Mutation>
                 <ul>
                     {data.allUsers.map(user => 
                         <li key={user.githubLogin}> 
@@ -28,7 +44,6 @@ const Users = () =>
                     )}
                 </ul>
             </div>
-            
         }
     </Query>
 
