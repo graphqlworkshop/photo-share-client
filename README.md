@@ -5,107 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Requesting a Github Code
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/components/AuthorizedUser.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-class AuthorizedUser extends Component {
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-    state = { signingIn: false }
-    
-    requestCode = () => {
-       const clientID = process.env.REACT_APP_GITHUB_CLIENT_ID
-       window.location = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=user`
-    }
-
-    authorizationComplete = () => {
-      const { history } = this.props
-      this.setState({ signingIn: false })
-      history.replace('/')
-    }
-
-    componentDidMount() {
-       if (window.location.search.match(/code=/)) {
-           this.setState({ signingIn: true })
-           const code = window.location.search.replace("?code=", "")
-           alert(`code: ${code}`)
-           this.authorizationComplete()
-       }
-    }
-
-    render() {
-      return (
-        <button onClick={this.requestCode} 
-          disabled={this.state.signingIn}>
-           Sign In with Github
-        </button>
-      )
-    }
-
-}
-
- export default withRouter(AuthorizedUser) 
-```
-
-### Authorize with Github
-
-__src/components/AuthorizedUser.js__
-```javascript
-import { Mutation } from 'react-apollo'
-
-const GITHUB_AUTH_MUTATION = gql`
-    mutation authorize($code:String!) {
-        githubAuth(code:$code) {
-            token
-        }
-    }
-`
-
-...
-
-render() {
-  return (
-      <Mutation mutation={GITHUB_AUTH_MUTATION} update={this.authorizationComplete}>
-          {authorize => {
-              this.authorize = authorize
-              return (
-                  <button onClick={this.requestCode} 
-                      disabled={this.state.signingIn}>
-                      Sign In with Github
-                  </button>
-              )
-          }}
-      </Mutation>
-  )
-}
-```
-
-__src/components/AuthorizedUser.js__
-```javascript
-componentDidMount() {
-    if (window.location.search.match(/code=/)) {
-        this.setState({ signingIn: true })
-        const code = window.location.search.replace("?code=", "")
-
-        // Call the Mutation instead of Authorization Complete
-        this.authorize({ variables: {code} })
-    }
-}
-```
-
-```javascript
-authorizationComplete = (cache, { data }) => {
-    
-    // Set the token
-    localStorage.setItem('token', data.githubAuth.token)
-    
-    const { history } = this.props
-    this.setState({ signingIn: false })
-    history.replace('/')
-}
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -115,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
