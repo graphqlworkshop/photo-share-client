@@ -1,19 +1,9 @@
 import React from 'react'
 import { render } from 'react-dom'
-import ApolloClient, { gql } from 'apollo-boost'
+import ApolloClient from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
 
-const client = new ApolloClient({ uri: 'http://localhost:4000/graphql '})
-
-const TOTALS = gql`
-    query totals {
-        totalPhotos
-        totalUsers
-    }
-`
-
-client.query({ query: TOTALS })
-    .then(console.log)
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
 render(
   <ApolloProvider client={client}>
