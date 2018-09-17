@@ -5,85 +5,107 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Setup environment
-
-`yarn add react-router-dom`
-
-__.env__
-```
-REACT_APP_GITHUB_CLIENT_ID=<YOUR_CLIENT_ID>
-```
-
-__.gitignore__
-```
-# environment
-.env
-```
-
-* restart
-
-### Move User Component to it's Own File
-
-__src/components/Users.js__
-```javascript
-import React from 'react'
-import { gql } from 'apollo-boost'
-import { Query, Mutation } from 'react-apollo'
-
-const ALL_USERS = gql` 
-  ... 
-`
-
-const ADD_TEST_USER = gql`
-  ...
-`
-
-const Users = () =>
-    <Query query={ALL_USERS} pollInterval={1000}>
-        
-        ...
-
-    </Query>
-
-export default Users
-```
-
-### Create Authorized User Component
+### Requesting a Github Code
 
 __src/components/AuthorizedUser.js__
 ```javascript
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 
- class AuthorizedUser extends Component {
-     render() {
-        console.log('withRouter adds props: ', this.props)
-        return <button>Sign In with Github</button>
+class AuthorizedUser extends Component {
+
+    state = { signingIn: false }
+    
+    requestCode = () => {
+       const clientID = process.env.REACT_APP_GITHUB_CLIENT_ID
+       window.location = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=user`
     }
- }
+
+    authorizationComplete = () => {
+      const { history } = this.props
+      this.setState({ signingIn: false })
+      history.replace('/')
+    }
+
+    componentDidMount() {
+       if (window.location.search.match(/code=/)) {
+           this.setState({ signingIn: true })
+           const code = window.location.search.replace("?code=", "")
+           alert(`code: ${code}`)
+           this.authorizationComplete()
+       }
+    }
+
+    render() {
+      return (
+        <button onClick={this.requestCode} 
+          disabled={this.state.signingIn}>
+           Sign In with Github
+        </button>
+      )
+    }
+
+}
 
  export default withRouter(AuthorizedUser) 
 ```
 
-### Put it all together
+### Authorize with Github
 
-__src/components/App.js__
+__src/components/AuthorizedUser.js__
 ```javascript
-import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import AuthorizedUser from './AuthorizedUser'
-import Users from './Users'
+import { Mutation } from 'react-apollo'
 
-const App = () =>
-    <BrowserRouter>
-        <div>
-            <AuthorizedUser />
-            <Users />
-        </div>
-       
-    </BrowserRouter>
+const GITHUB_AUTH_MUTATION = gql`
+    mutation authorize($code:String!) {
+        githubAuth(code:$code) {
+            token
+        }
+    }
+`
 
-export default App
+...
+
+render() {
+  return (
+      <Mutation mutation={GITHUB_AUTH_MUTATION} update={this.authorizationComplete}>
+          {authorize => {
+              this.authorize = authorize
+              return (
+                  <button onClick={this.requestCode} 
+                      disabled={this.state.signingIn}>
+                      Sign In with Github
+                  </button>
+              )
+          }}
+      </Mutation>
+  )
+}
+```
+
+__src/components/AuthorizedUser.js__
+```javascript
+componentDidMount() {
+    if (window.location.search.match(/code=/)) {
+        this.setState({ signingIn: true })
+        const code = window.location.search.replace("?code=", "")
+
+        // Call the Mutation instead of Authorization Complete
+        this.authorize({ variables: {code} })
+    }
+}
+```
+
+```javascript
+authorizationComplete = (cache, { data }) => {
+    
+    // Set the token
+    localStorage.setItem('token', data.githubAuth.token)
+    
+    const { history } = this.props
+    this.setState({ signingIn: false })
+    history.replace('/')
+}
 ```
 
 Iterations
@@ -103,9 +125,9 @@ Iterations
 ### c. Github Authorization
 
 1. [x] React Configuration
-2. [ ] Authorizing with Github
-3. [ ] Identifying the user with `ME` Query
-4. [ ] Refetching `ALL_USERS_QUERY`
+2. [x] Authorizing with Github
+3. [ ] Refetching `ALL_USERS_QUERY`
+4. [ ] Identifying the user with `ME` Query
 5. [ ] Handling Logging Out
 
 ### d. Incorporating Subscriptions
