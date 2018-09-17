@@ -2,24 +2,16 @@ import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { Query, Mutation } from 'react-apollo'
 import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
+import { Auth } from './ui'
 
-const CurrentUser = ({ name, avatar, logout=f=>f }) =>
-    <div>
-        <img src={avatar} width={48} height={48} alt="" />
-        <h1>{name}</h1>
-        <button onClick={logout}>logout</button>
-    </div>
-
-const Me = ({ onRequestCode=f=>f, signingIn=false, logout=f=>f }) =>
+const Me = ({ signingIn=false, logout=f=>f, onPostPhotoClick=f=>f }) =>
     <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => data.me ?
-            <CurrentUser {...data.me} logout={() => logout(client)} /> :
-            loading ?
-                <p>loading... </p> :
-                <button onClick={onRequestCode}
-                    disabled={signingIn}>
-                    Sign In with Github
-                </button>
+        {({ loading, data, client }) => 
+            <Auth me={data.me} loading={loading} 
+                    clientID={process.env.REACT_APP_GITHUB_CLIENT_ID}
+                    signingIn={signingIn} 
+                    onSignOut={() => logout(client)} 
+                    onPostPhotoClick={onPostPhotoClick} />
         }
     </Query>
 
@@ -60,7 +52,10 @@ class AuthorizedUser extends Component {
                 {(authorize) => {
                     this.authorize = authorize
                     return (
-                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} logout={this.logout} />
+                        <Me signingIn={this.state.signingIn} 
+                            logout={this.logout}
+                            onPostPhotoClick={() => this.props.history.push('/newPhoto')}
+                            />
                     )
                 }}
             </Mutation>
