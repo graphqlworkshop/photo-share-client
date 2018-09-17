@@ -1,9 +1,16 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import AuthorizedUser from './AuthorizedUser'
 import Users from './Users'
 import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
+import { UserInterface } from './ui'
+
+const Menu = () => 
+    <Fragment>
+        <AuthorizedUser />,
+        <Users />
+    </Fragment>
 
 class App extends Component {
 
@@ -29,10 +36,9 @@ class App extends Component {
     render() {
         return (
             <BrowserRouter>
-                <div>
-                    <AuthorizedUser />
-                    <Users />
-                </div>
+                <UserInterface menu={<Menu />}>
+                    <h1>Main Content</h1>
+                </UserInterface>
             </BrowserRouter>
         )
     }
