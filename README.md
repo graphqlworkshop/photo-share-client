@@ -5,54 +5,30 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add The Mutation
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/components/App.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-const ADD_TEST_USER = gql`
-    mutation addTestUser {
-        githubAuth(code: "TEST") {
-            token
-            user {  
-                githubLogin
-                avatar
-                name
-            }
-        }
-    }
-`
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
+
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
+
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
-
-### Trigger the Mutation with a Button
-
-__src/components/App.js__
-```javascript
-import { Query, Mutation } from 'react-apollo'
-
-...
-
-const Users = () =>
-    <Query query={ALL_USERS}>
-        {({ data, loading }) => loading ?
-            <p>loading...</p> :
-            <div>
-                <p>total Users: {data.totalUsers}</p>
-                <Mutation mutation={ADD_TEST_USER}>
-                    {addTestUser => <button onClick={addTestUser}>Add Test User</button>}
-                </Mutation>
-                <ul>
-
-                ...
-
-```
-
-### Set the Poll Interval
-
-__src/components/App.js__
-```javascript
-<Query query={ALL_USERS} pollInterval={1000}>
-```
-
 
 Iterations
 ---------------
@@ -61,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
