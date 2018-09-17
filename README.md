@@ -5,71 +5,68 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add a Logout Button
+### Install the Web Socket Link
 
-__src/components/AuthorizedUser.js__
+`yarn add apollo-link-ws`
+
+### Import client from a module
+
+__src/index.js__
 ```javascript
-const CurrentUser = ({ name, avatar, logout=f=>f }) =>
-    <div>
-        <img src={avatar} width={48} height={48} alt="" />
-        <h1>{name}</h1>
-        <button onClick={logout}>logout</button>
-    </div>
+...
+import client from './photo-share-client'
+
+render(
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
-### Pass the client to the logout function
+### Build the Client Module
 
-__src/components/AuthorizedUser.js__
+__src/photo-share-client.js__
 ```javascript
-const Me = ({ onRequestCode=f=>f, signingIn=false, logout=f=>f }) =>
-    <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => data.me ?
-            <CurrentUser {...data.me} logout={() => logout(client)} /> :
-            loading ?
-                <p>loading... </p> :
-                <button onClick={onRequestCode}
-                    disabled={signingIn}>
-                    Sign In with Github
-                </button>
+import { 
+    InMemoryCache, 
+    ApolloLink,
+    HttpLink,
+    ApolloClient,
+    split
+} from 'apollo-boost'
+import { WebSocketLink } from 'apollo-link-ws'
+import { getMainDefinition } from 'apollo-utilities'
+
+const cache = new InMemoryCache()
+const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' })
+const authLink = new ApolloLink((operation, forward) => {
+    operation.setContext(context => ({
+        headers: {
+            ...context.headers,
+            authorization: localStorage.getItem('token')
         }
-    </Query>
-```
+    }))
+    return forward(operation)
+})
 
-### Log the user out and change the cache
+const httpAuthLink = authLink.concat(httpLink)
 
-__src/components/AuthorizedUser.js__
-```javascript
-class AuthorizedUser extends Component {
+const wsLink = new WebSocketLink({
+    uri: `ws://localhost:4000/graphql`,
+    options: { reconnect: true }
+  })
+  
+const link = split(
+    ({ query }) => {
+        const { kind, operation } = getMainDefinition(query)
+        return kind === 'OperationDefinition' && operation === 'subscription'
+    }, 
+    wsLink,
+    httpAuthLink
+)
 
-    state = { signingIn: false }
-    
-    ...
-
-    logout = (client) => {
-        localStorage.removeItem('token')
-        let data = client.readQuery({ query: ROOT_QUERY })
-        data.me = null
-        client.writeQuery({ query: ROOT_QUERY, data })
-    }
-
-    render() {
-        return (
-            <Mutation mutation={GITHUB_AUTH} 
-                update={this.authorizationComplete} 
-                refetchQueries={[{ query: ROOT_QUERY }]}>
-                {(authorize) => {
-                    this.authorize = authorize
-                    return (
-                        <Me onRequestCode={this.requestCode} 
-                          signingIn={this.state.signingIn} 
-                          logout={this.logout} />
-                    )
-                }}
-            </Mutation>
-        )
-      }
-
-}
+export default new ApolloClient({ cache, link })
 ```
 
 Iterations
@@ -97,8 +94,9 @@ Iterations
 ### d. Incorporating Subscriptions
 
 1. [x] Adding a WebSocket Link
-2. [x] Persisting Data
-3. [x] Subscribing to new users
+2. [ ] Persisting Data
+3. [ ] Subscribing to new users
+4. [ ] Updating the local cache
 
 ### e. Incorporating the UI
 
