@@ -1,0 +1,16 @@
+html, body, #root {
+    height: 100%
+}
+
+body, #root, h1, h2, h3, p, td {
+    padding: 0;
+    margin: 0;
+}
+
+#root {
+    display: flex;
+}
+
+::-webkit-scrollbar {
+    width: 15px;
+}
