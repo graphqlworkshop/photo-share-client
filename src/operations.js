@@ -1,14 +1,25 @@
 import { gql } from 'apollo-boost'
 
+const FRAGMENT_USER_DETAILS = gql`
+    fragment userDetails on User {
+        githubLogin
+        avatar
+        name
+    }
+`
+
 export const ROOT_QUERY = gql`
-    query users {
+    query everything {
+        me {
+            ...userDetails
+        }
         totalUsers
         allUsers {
-            githubLogin
-            avatar
-            name
+            ...userDetails
         }
     }
+
+    ${FRAGMENT_USER_DETAILS}
 `
 
 export const ADD_TEST_USER = gql`
@@ -16,12 +27,12 @@ export const ADD_TEST_USER = gql`
         githubAuth(code: "TEST") {
             token
             user {  
-                githubLogin
-                avatar
-                name
+                ...userDetails
             }
         }
     }
+
+    ${FRAGMENT_USER_DETAILS}
 `
 
 export const GITHUB_AUTH = gql`
@@ -30,9 +41,10 @@ export const GITHUB_AUTH = gql`
             token
             user {
                 githubLogin
-                avatar
-                name
+                ...userDetails
             }
         }
     }
+
+    ${FRAGMENT_USER_DETAILS}
 `
