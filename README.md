@@ -5,71 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add Photos to Root Query
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/operations.js__
-```javascript
-export const ROOT_QUERY = gql`
-    query everything {
-        me {
-            ...userDetails
-        }
-        totalUsers
-        allUsers {
-            ...userDetails
-        }
-        allPhotos {
-            id
-            name
-            url
-            created
-            postedBy {
-                name
-                avatar
-            }
-        }
-    }
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-    ${FRAGMENT_USER_DETAILS}
-`
-```
+### Create Client and Render Provider
 
-### Create a Photos Component
-
-__src/components/App.js__
-```javascript
-import Photos from './Photos'
-
-...
-
-render() {
-    return (
-        <BrowserRouter>
-            <UserInterface menu={<Menu />}>
-                <Photos />
-            </UserInterface>
-        </BrowserRouter>
-    )
-}
-```
-
-### Query and Display the Photos
-
-__src/components/Photos.js__
+__src/index.js__
 ```javascript
 import React from 'react'
-import { PhotoCards } from './ui'
-import { Query } from 'react-apollo'
-import { ROOT_QUERY } from '../operations'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-const Photos = () => 
-    <Query query={ROOT_QUERY}>
-        {({ data, loading }) => 
-            <PhotoCards photos={data.allPhotos} loading={loading} />
-        }
-    </Query>
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-export default Photos
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -79,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
