@@ -82,7 +82,7 @@ Iterations
 ### d. Incorporating Subscriptions
 
 1. [x] Adding a WebSocket Link
-2. [ ] Persisting Data
+2. [x] Persisting Data
 3. [ ] Subscribing to new users
 
 ### e. Incorporating the UI
