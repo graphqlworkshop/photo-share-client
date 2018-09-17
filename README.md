@@ -5,56 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Install Apollo Cache Persist
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-`yarn add apollo-cache-persist`
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-### Persist the Cache
-__src/photo-share-client.js__
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-import { persistCache } from 'apollo-cache-persist'
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-const cache = new InMemoryCache()
-persistCache({
-    cache,
-    storage: localStorage
-})
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-if (localStorage['apollo-cache-persist']) {
-    let cacheData = JSON.parse(localStorage['apollo-cache-persist'])
-    cache.restore(cacheData)
-}
-```
-
-### Set the Fetch Policy to Network Only
-
-__src/components/Users.js__
-```javascript
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-only">
-```
-
-### Problem: Add a New User with the Playground
-The fetch policy is cache only, no network request will be made. To demonstrate this add some fake users via the playgound and see what happens in the browser.
-
-```graphql
-mutation addTestUser {
-  githubAuth(code:"TEST") {
-    token 
-    user {
-      name
-    }
-  }
-}
-```
-
-### Set the Fetch Policy to Cache and Network
-Not the fetch policy will start with the cache, and later hydrate that dta from the network.
-
-__src/components/Users.js__
-```javascript
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -64,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
