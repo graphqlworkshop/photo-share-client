@@ -5,54 +5,86 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add The Mutation
+### Setup environment
 
-__src/components/App.js__
-```javascript
-const ADD_TEST_USER = gql`
-    mutation addTestUser {
-        githubAuth(code: "TEST") {
-            token
-            user {  
-                githubLogin
-                avatar
-                name
-            }
-        }
-    }
-`
+`yarn add react-router-dom`
+
+__.env__
+```
+REACT_APP_GITHUB_CLIENT_ID=<YOUR_CLIENT_ID>
 ```
 
-### Trigger the Mutation with a Button
+__.gitignore__
+```
+# environment
+.env
+```
 
-__src/components/App.js__
+* restart
+
+### Move User Component to it's Own File
+
+__src/components/Users.js__
 ```javascript
+import React from 'react'
+import { gql } from 'apollo-boost'
 import { Query, Mutation } from 'react-apollo'
 
-...
+const ALL_USERS = gql` 
+  ... 
+`
+
+const ADD_TEST_USER = gql`
+  ...
+`
 
 const Users = () =>
-    <Query query={ALL_USERS}>
-        {({ data, loading }) => loading ?
-            <p>loading...</p> :
-            <div>
-                <p>total Users: {data.totalUsers}</p>
-                <Mutation mutation={ADD_TEST_USER}>
-                    {addTestUser => <button onClick={addTestUser}>Add Test User</button>}
-                </Mutation>
-                <ul>
+    <Query query={ALL_USERS} pollInterval={1000}>
+        
+        ...
 
-                ...
+    </Query>
 
+export default Users
 ```
 
-### Set the Poll Interval
+### Create Authorized User Component
+
+__src/components/AuthorizedUser.js__
+```javascript
+import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
+
+ class AuthorizedUser extends Component {
+     render() {
+        console.log('withRouter adds props: ', this.props)
+        return <button>Sign In with Github</button>
+    }
+ }
+
+ export default withRouter(AuthorizedUser) 
+```
+
+### Put it all together
 
 __src/components/App.js__
 ```javascript
-<Query query={ALL_USERS} pollInterval={1000}>
-```
+import React from 'react'
+import { BrowserRouter } from 'react-router-dom'
+import AuthorizedUser from './AuthorizedUser'
+import Users from './Users'
 
+const App = () =>
+    <BrowserRouter>
+        <div>
+            <AuthorizedUser />
+            <Users />
+        </div>
+       
+    </BrowserRouter>
+
+export default App
+```
 
 Iterations
 ---------------
@@ -70,7 +102,7 @@ Iterations
 
 ### c. Github Authorization
 
-1. [ ] React Configuration
+1. [x] React Configuration
 2. [ ] Authorizing with Github
 3. [ ] Identifying the user with `ME` Query
 4. [ ] Refetching `ALL_USERS_QUERY`
