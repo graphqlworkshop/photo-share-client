@@ -5,71 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add a Logout Button
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/components/AuthorizedUser.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
-const CurrentUser = ({ name, avatar, logout=f=>f }) =>
-    <div>
-        <img src={avatar} width={48} height={48} alt="" />
-        <h1>{name}</h1>
-        <button onClick={logout}>logout</button>
-    </div>
-```
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-### Pass the client to the logout function
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-__src/components/AuthorizedUser.js__
-```javascript
-const Me = ({ onRequestCode=f=>f, signingIn=false, logout=f=>f }) =>
-    <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => data.me ?
-            <CurrentUser {...data.me} logout={() => logout(client)} /> :
-            loading ?
-                <p>loading... </p> :
-                <button onClick={onRequestCode}
-                    disabled={signingIn}>
-                    Sign In with Github
-                </button>
-        }
-    </Query>
-```
-
-### Log the user out and change the cache
-
-__src/components/AuthorizedUser.js__
-```javascript
-class AuthorizedUser extends Component {
-
-    state = { signingIn: false }
-    
-    ...
-
-    logout = (client) => {
-        localStorage.removeItem('token')
-        let data = client.readQuery({ query: ROOT_QUERY })
-        data.me = null
-        client.writeQuery({ query: ROOT_QUERY, data })
-    }
-
-    render() {
-        return (
-            <Mutation mutation={GITHUB_AUTH} 
-                update={this.authorizationComplete} 
-                refetchQueries={[{ query: ROOT_QUERY }]}>
-                {(authorize) => {
-                    this.authorize = authorize
-                    return (
-                        <Me onRequestCode={this.requestCode} 
-                          signingIn={this.state.signingIn} 
-                          logout={this.logout} />
-                    )
-                }}
-            </Mutation>
-        )
-      }
-
-}
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -79,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
