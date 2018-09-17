@@ -5,26 +5,92 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Send a Query Using the Client
+### Create an App Component
 
 __src/index.js__
 ```javascript
-import ApolloClient, { gql } from 'apollo-boost'
-
 ...
 
-const TOTALS = gql`
-    query totals {
-        totalPhotos
+import ApolloClient from 'apollo-boost'
+import App from './components/App'
+
+
+const client = new ApolloClient({ uri: 'http://localhost:4000/graphql '})
+
+render(
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
+```
+
+__src/components/app.js__
+```javascript
+import React from 'react'
+
+const App = () => <h1>Hello World</h1>
+
+export default App
+```
+
+### Build the Query
+
+__src/components/app.js__
+```javascript
+import { gql } from 'apollo-boost'
+
+const ALL_USERS = gql`
+    query users {
         totalUsers
+        allUsers {
+            githubLogin
+            avatar
+            name
+        }
     }
 `
+```
 
-client.query({ query: TOTALS })
-    .then(console.log)
+### Check the loading value
 
-...
+__src/components/app.js__
+```javascript
+import { Query } from 'react-apollo'
 
+const Users = () =>
+    <Query query={ALL_USERS}>
+        {({ data, loading }) => loading ?
+            <p>Loading</p> :
+            <p>Finished Loading</p>
+        }
+    </Query>
+
+
+
+const App = () => <Users />
+
+```
+
+### Display the Data
+
+__src/components/app.js__
+```javascript
+{({ data, loading }) => loading ?
+    <p>loading...</p> :
+    <div>
+        <p>total Users: {data.totalUsers}</p>
+        <ul>
+            {data.allUsers.map(user => 
+                <li key={user.githubLogin}> 
+                    <img src={user.avatar} width={48} height={48} alt="" />
+                    {user.name}
+                </li>
+            )}
+        </ul>
+    </div>
+    
+}
 ```
 
 Iterations
