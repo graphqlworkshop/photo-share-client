@@ -5,153 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add Me to the Root Query
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/operations.js__
-```javascript
-export const ROOT_QUERY = gql`
-    query everything {
-        me {
-          githubLogin
-          avatar
-          name
-        }
-        totalUsers
-        allUsers {
-          githubLogin
-          avatar
-          name
-        }
-    }
-`
-```
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-### Pass Current User's token in the Header
+### Create Client and Render Provider
 
 __src/index.js__
 ```javascript
-const client = new ApolloClient({ 
-  uri: 'http://localhost:4000/graphql',
-  request: operation => {
-    operation.setContext(context => ({
-        headers: {
-            ...context.headers,
-            authorization: localStorage.getItem('token')
-        }
-    }))
-  }
-})
-```
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-### Create a Current User Component
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-__src/components/AuthorizedUser.js__
-```javascript
-const CurrentUser = ({ name, avatar }) =>
-    <div>
-        <img src={avatar} width={48} height={48} alt="" />
-        <h1>{name}</h1>
-    </div>
-```
-
-### Create a Me component
-
-__src/components/AuthorizedUser.js__
-```javascript
-const Me = ({ onRequestCode=f=>f, signingIn=false }) =>
-    <Query query={ROOT_QUERY}>
-        {({ loading, data }) => data.me ?
-            <CurrentUser {...data.me} /> :
-            loading ?
-                <p>loading... </p> :
-                <button onClick={onRequestCode}
-                    disabled={signingIn}>
-                    Sign In with Github
-                </button>
-        }
-    </Query>
-```
-
-### Render the Me component
-
-__src/components/AuthorizedUser.js__
-```javascript
-class AuthorizedUser extends Component {
-
-    state = { signingIn: false }
-    
-    ...
-
-    render() {
-        return (
-            <Mutation mutation={GITHUB_AUTH} update={this.authorizationComplete} refetchQueries={[{ query: ROOT_QUERY }]}>
-                {authorize => {
-                    this.authorize = authorize
-                    return (
-                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} />
-                    )
-                }}
-            </Mutation>
-        )
-      }
-
-}
-```
-
-### Bonus: Refactor Operations with a Fragment
-
-__src/operations.js__
-```javascript
-import { gql } from 'apollo-boost'
-
-const FRAGMENT_USER_DETAILS = gql`
-    fragment userDetails on User {
-        githubLogin
-        avatar
-        name
-    }
-`
-
-export const ROOT_QUERY = gql`
-    query everything {
-        me {
-            ...userDetails
-        }
-        totalUsers
-        allUsers {
-            ...userDetails
-        }
-    }
-
-    ${FRAGMENT_USER_DETAILS}
-`
-
-export const ADD_TEST_USER = gql`
-    mutation addTestUser {
-        githubAuth(code: "TEST") {
-            token
-            user {  
-                ...userDetails
-            }
-        }
-    }
-
-    ${FRAGMENT_USER_DETAILS}
-`
-
-export const GITHUB_AUTH = gql`
-    mutation authorize($code:String!) {
-        githubAuth(code:$code) {
-            token
-            user {
-                githubLogin
-                ...userDetails
-            }
-        }
-    }
-
-    ${FRAGMENT_USER_DETAILS}
-`
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -161,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
