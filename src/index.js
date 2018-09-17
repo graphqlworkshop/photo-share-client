@@ -1,1 +1,13 @@
-console.log('TODO: Build the React Web Client for the Photo Share Application')
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
+
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
+
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  

@@ -5,16 +5,30 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Create React App
-The contents of this directory were primarily produced by running `create-react-app`. The Default React components were then removed from the `src` folder. The `src/index.js` file is the entry point for our app. The following npm commands are already supported:
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-* `npm start`: Starts Webpack Dev Server
-* `npm test`: Runs Jest Tests
-* `npm run build`: Builds App for Production
-* `npm eject`: Ejects `react-scripts` for build customization
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-### UI Components
-Within the `src/components/ui` folder you will find a set of pre-built presentation components that utilize `matrial-ui` and `styled-components`. We will use these components when putting the finishing touches on the application.
+### Create Client and Render Provider
+
+__src/index.js__
+```javascript
+import React from 'react'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
+
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
+
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
+```
 
 Iterations
 ---------------
@@ -22,7 +36,7 @@ Iterations
 ### a. Apollo Client
 
 1. [x] Create React App
-2. [ ] Apollo Client Setup
+2. [x] Apollo Client Setup
 3. [ ] Sending a Test Query
 
 ### b. Handling Users
