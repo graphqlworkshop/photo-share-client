@@ -5,41 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Simplify the Users component
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-__src/components/Users.js__
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
+
+### Create Client and Render Provider
+
+__src/index.js__
 ```javascript
 import React from 'react'
-import { Query } from 'react-apollo'
-import { ROOT_QUERY } from '../operations'
-import { UserList } from './ui'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
-        {({ data, loading }) => 
-            <UserList users={data.allUsers} loading={loading} />
-        }
-    </Query>
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-export default Users
-```
-
-### Simplify the Me component
-
-__src/components/AuthorizedUser.js__
-```javascript
-import { Auth } from './ui'
-
-const Me = ({ signingIn=false, logout=f=>f, onPostPhotoClick=f=>f }) =>
-    <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => 
-            <Auth me={data.me} loading={loading} 
-                    clientID={process.env.REACT_APP_GITHUB_CLIENT_ID}
-                    signingIn={signingIn} 
-                    onSignOut={() => logout(client)} 
-                    onPostPhotoClick={onPostPhotoClick} />
-        }
-    </Query>
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -49,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
