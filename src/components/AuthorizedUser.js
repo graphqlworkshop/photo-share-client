@@ -1,7 +1,26 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import { Mutation } from 'react-apollo'
+import { Query, Mutation } from 'react-apollo'
 import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
+
+const CurrentUser = ({ name, avatar }) =>
+    <div>
+        <img src={avatar} width={48} height={48} alt="" />
+        <h1>{name}</h1>
+    </div>
+
+const Me = ({ onRequestCode=f=>f, signingIn=false }) =>
+    <Query query={ROOT_QUERY}>
+        {({ loading, data }) => data.me ?
+            <CurrentUser {...data.me} /> :
+            loading ?
+                <p>loading... </p> :
+                <button onClick={onRequestCode}
+                    disabled={signingIn}>
+                    Sign In with Github
+                </button>
+        }
+    </Query>
 
 class AuthorizedUser extends Component {
 
@@ -33,10 +52,7 @@ class AuthorizedUser extends Component {
                 {authorize => {
                     this.authorize = authorize
                     return (
-                        <button onClick={this.requestCode} 
-                            disabled={this.state.signingIn}>
-                            Sign In with Github
-                        </button>
+                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} />
                     )
                 }}
             </Mutation>
