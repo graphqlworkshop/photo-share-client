@@ -5,93 +5,54 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Create an App Component
+### Add The Mutation
 
-__src/index.js__
+__src/components/App.js__
 ```javascript
-...
-
-import ApolloClient from 'apollo-boost'
-import App from './components/App'
-
-
-const client = new ApolloClient({ uri: 'http://localhost:4000/graphql '})
-
-render(
-  <ApolloProvider client={client}>
-    <App />
-  </ApolloProvider>,
-  document.getElementById('root')
-)  
-```
-
-__src/components/app.js__
-```javascript
-import React from 'react'
-
-const App = () => <h1>Hello World</h1>
-
-export default App
-```
-
-### Build the Query
-
-__src/components/app.js__
-```javascript
-import { gql } from 'apollo-boost'
-
-const ALL_USERS = gql`
-    query users {
-        totalUsers
-        allUsers {
-            githubLogin
-            avatar
-            name
+const ADD_TEST_USER = gql`
+    mutation addTestUser {
+        githubAuth(code: "TEST") {
+            token
+            user {  
+                githubLogin
+                avatar
+                name
+            }
         }
     }
 `
 ```
 
-### Check the loading value
+### Trigger the Mutation with a Button
 
-__src/components/app.js__
+__src/components/App.js__
 ```javascript
-import { Query } from 'react-apollo'
+import { Query, Mutation } from 'react-apollo'
+
+...
 
 const Users = () =>
     <Query query={ALL_USERS}>
         {({ data, loading }) => loading ?
-            <p>Loading</p> :
-            <p>Finished Loading</p>
-        }
-    </Query>
+            <p>loading...</p> :
+            <div>
+                <p>total Users: {data.totalUsers}</p>
+                <Mutation mutation={ADD_TEST_USER}>
+                    {addTestUser => <button onClick={addTestUser}>Add Test User</button>}
+                </Mutation>
+                <ul>
 
-
-
-const App = () => <Users />
+                ...
 
 ```
 
-### Display the Data
+### Set the Poll Interval
 
-__src/components/app.js__
+__src/components/App.js__
 ```javascript
-{({ data, loading }) => loading ?
-    <p>loading...</p> :
-    <div>
-        <p>total Users: {data.totalUsers}</p>
-        <ul>
-            {data.allUsers.map(user => 
-                <li key={user.githubLogin}> 
-                    <img src={user.avatar} width={48} height={48} alt="" />
-                    {user.name}
-                </li>
-            )}
-        </ul>
-    </div>
-    
-}
+<Query query={ALL_USERS} pollInterval={1000}>
 ```
+
 
 Iterations
 ---------------
@@ -105,8 +66,7 @@ Iterations
 ### b. Handling Users
 
 1. [x] Add `ALL_USERS` Query
-2. [ ] Add `TEST_USER` Mutation
-3. [ ] Setting the `pollInterval`
+2. [x] Add `TEST_USER` Mutation
 
 ### c. Github Authorization
 
