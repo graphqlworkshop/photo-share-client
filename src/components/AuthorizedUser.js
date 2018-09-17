@@ -3,16 +3,17 @@ import { withRouter } from 'react-router-dom'
 import { Query, Mutation } from 'react-apollo'
 import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
 
-const CurrentUser = ({ name, avatar }) =>
+const CurrentUser = ({ name, avatar, logout=f=>f }) =>
     <div>
         <img src={avatar} width={48} height={48} alt="" />
         <h1>{name}</h1>
+        <button onClick={logout}>logout</button>
     </div>
 
-const Me = ({ onRequestCode=f=>f, signingIn=false }) =>
+const Me = ({ onRequestCode=f=>f, signingIn=false, logout=f=>f }) =>
     <Query query={ROOT_QUERY}>
-        {({ loading, data }) => data.me ?
-            <CurrentUser {...data.me} /> :
+        {({ loading, data, client }) => data.me ?
+            <CurrentUser {...data.me} logout={() => logout(client)} /> :
             loading ?
                 <p>loading... </p> :
                 <button onClick={onRequestCode}
@@ -38,6 +39,13 @@ class AuthorizedUser extends Component {
         history.replace('/')
     }
 
+    logout = (client) => {
+        localStorage.removeItem('token')
+        let data = client.readQuery({ query: ROOT_QUERY })
+        data.me = null
+        client.writeQuery({ query: ROOT_QUERY, data })
+    }
+
     componentDidMount() {
        if (window.location.search.match(/code=/)) {
            this.setState({ signingIn: true })
@@ -49,10 +57,10 @@ class AuthorizedUser extends Component {
     render() {
         return (
             <Mutation mutation={GITHUB_AUTH} update={this.authorizationComplete} refetchQueries={[{ query: ROOT_QUERY }]}>
-                {authorize => {
+                {(authorize) => {
                     this.authorize = authorize
                     return (
-                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} />
+                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} logout={this.logout} />
                     )
                 }}
             </Mutation>
