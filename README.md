@@ -5,66 +5,154 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Refactor Operations
-Move all current operations to a single file:
+### Add Me to the Root Query
 
 __src/operations.js__
 ```javascript
-import { gql } from 'apollo-boost'
-
-// Rename ALL_USERS query to ROOT_QUERY
 export const ROOT_QUERY = gql`
-  ...
-`
-
-export const ADD_TEST_USER = gql`
-  ...
-`
-
-export const GITHUB_AUTH = gql`
-  ...
+    query everything {
+        me {
+          githubLogin
+          avatar
+          name
+        }
+        totalUsers
+        allUsers {
+          githubLogin
+          avatar
+          name
+        }
+    }
 `
 ```
 
-### Import new ROOT_QUERY, remove pollInterval 
+### Pass Current User's token in the Header
 
-__src/components/Users.js__
+__src/index.js__
 ```javascript
-import { ROOT_QUERY, ADD_TEST_USER } from '../operations'
-
-const Users = () =>
-    <Query query={ROOT_QUERY}>
+const client = new ApolloClient({ 
+  uri: 'http://localhost:4000/graphql',
+  request: operation => {
+    operation.setContext(context => ({
+        headers: {
+            ...context.headers,
+            authorization: localStorage.getItem('token')
+        }
+    }))
+  }
+})
 ```
 
-### Refetch After Authorization
+### Create a Current User Component
 
 __src/components/AuthorizedUser.js__
 ```javascript
-import { GITHUB_AUTH, ROOT_QUERY } from '../operations'
+const CurrentUser = ({ name, avatar }) =>
+    <div>
+        <img src={avatar} width={48} height={48} alt="" />
+        <h1>{name}</h1>
+    </div>
+```
 
+### Create a Me component
+
+__src/components/AuthorizedUser.js__
+```javascript
+const Me = ({ onRequestCode=f=>f, signingIn=false }) =>
+    <Query query={ROOT_QUERY}>
+        {({ loading, data }) => data.me ?
+            <CurrentUser {...data.me} /> :
+            loading ?
+                <p>loading... </p> :
+                <button onClick={onRequestCode}
+                    disabled={signingIn}>
+                    Sign In with Github
+                </button>
+        }
+    </Query>
+```
+
+### Render the Me component
+
+__src/components/AuthorizedUser.js__
+```javascript
 class AuthorizedUser extends Component {
+
+    state = { signingIn: false }
+    
+    ...
 
     render() {
         return (
-            <Mutation mutation={GITHUB_AUTH} 
-                update={this.authorizationComplete} 
-                refetchQueries={[{ query: ROOT_QUERY }]}>
+            <Mutation mutation={GITHUB_AUTH} update={this.authorizationComplete} refetchQueries={[{ query: ROOT_QUERY }]}>
                 {authorize => {
-
-                  ...
-                
+                    this.authorize = authorize
+                    return (
+                        <Me onRequestCode={this.requestCode} signingIn={this.state.signingIn} />
+                    )
                 }}
             </Mutation>
         )
       }
 
 }
-
- export default withRouter(AuthorizedUser) 
 ```
 
-### Challenge: Refetch after add Test User
-Challenge the students to refetch the `ROOT_QUERY` after a test user has been added.
+### Bonus: Refactor Operations with a Fragment
+
+__src/operations.js__
+```javascript
+import { gql } from 'apollo-boost'
+
+const FRAGMENT_USER_DETAILS = gql`
+    fragment userDetails on User {
+        githubLogin
+        avatar
+        name
+    }
+`
+
+export const ROOT_QUERY = gql`
+    query everything {
+        me {
+            ...userDetails
+        }
+        totalUsers
+        allUsers {
+            ...userDetails
+        }
+    }
+
+    ${FRAGMENT_USER_DETAILS}
+`
+
+export const ADD_TEST_USER = gql`
+    mutation addTestUser {
+        githubAuth(code: "TEST") {
+            token
+            user {  
+                ...userDetails
+            }
+        }
+    }
+
+    ${FRAGMENT_USER_DETAILS}
+`
+
+export const GITHUB_AUTH = gql`
+    mutation authorize($code:String!) {
+        githubAuth(code:$code) {
+            token
+            user {
+                githubLogin
+                ...userDetails
+            }
+        }
+    }
+
+    ${FRAGMENT_USER_DETAILS}
+`
+```
 
 Iterations
 ---------------
@@ -85,7 +173,7 @@ Iterations
 1. [x] React Configuration
 2. [x] Authorizing with Github
 3. [x] Refetching `ALL_USERS_QUERY`
-4. [ ] Identifying the user with `ME` Query
+4. [x] Identifying the user with `ME` Query
 5. [ ] Handling Logging Out
 
 ### d. Incorporating Subscriptions
