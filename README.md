@@ -5,41 +5,46 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Simplify the Users component
+### Install dependencies
 
-__src/components/Users.js__
-```javascript
-import React from 'react'
-import { Query } from 'react-apollo'
-import { ROOT_QUERY } from '../operations'
-import { UserList } from './ui'
+`yarn add moment hammerjs`
 
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
-        {({ data, loading }) => 
-            <UserList users={data.allUsers} loading={loading} />
-        }
-    </Query>
+`yarn add material-ui styled-components`
 
-export default Users
-```
+`yarn add react-icons@2.2.7`
 
-### Simplify the Me component
+
+### Incorporate Main User Interface with App
 
 __src/components/AuthorizedUser.js__
 ```javascript
-import { Auth } from './ui'
+import { UserInterface } from './ui'
 
-const Me = ({ signingIn=false, logout=f=>f, onPostPhotoClick=f=>f }) =>
-    <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => 
-            <Auth me={data.me} loading={loading} 
-                    clientID={process.env.REACT_APP_GITHUB_CLIENT_ID}
-                    signingIn={signingIn} 
-                    onSignOut={() => logout(client)} 
-                    onPostPhotoClick={onPostPhotoClick} />
-        }
-    </Query>
+...
+
+const Menu = () => 
+    <Fragment>
+        <AuthorizedUser />,
+        <Users />
+    </Fragment>
+
+class App extends Component {
+
+    ...
+
+    render() {
+        return (
+            <BrowserRouter>
+                <UserInterface menu={<Menu />}>
+                    <h1>Main Content</h1>
+                </UserInterface>
+            </BrowserRouter>
+        )
+    }
+
+}
+
+export default withApollo(App)
 ```
 
 Iterations
@@ -73,7 +78,9 @@ Iterations
 ### e. Incorporating the UI
 
 1. [x] Incorporating the Main User Interface
-2. [x] Incorporating UI for Users
+2. [ ] Incorporating the UserList UI Component
+3. [ ] Adding Fake User Authorization
+4. [ ] Incorporating the Auth UI Component
 
 ### f. Posting Photos
 
