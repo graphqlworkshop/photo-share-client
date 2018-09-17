@@ -5,85 +5,29 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Setup environment
+### Start Photo Share API on port 4000
+Make sure the [Photo Share API]() is running on port 4000.
 
-`yarn add react-router-dom`
+### Install Dependencies
+`yarn add graphql apollo-boost react-apollo`
 
-__.env__
-```
-REACT_APP_GITHUB_CLIENT_ID=<YOUR_CLIENT_ID>
-```
+### Create Client and Render Provider
 
-__.gitignore__
-```
-# environment
-.env
-```
-
-* restart
-
-### Move User Component to it's Own File
-
-__src/components/Users.js__
+__src/index.js__
 ```javascript
 import React from 'react'
-import { gql } from 'apollo-boost'
-import { Query, Mutation } from 'react-apollo'
+import { render } from 'react-dom'
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from 'react-apollo'
 
-const ALL_USERS = gql` 
-  ... 
-`
+const client = new ApolloClient({ uri: 'http://localhost:4000 '})
 
-const ADD_TEST_USER = gql`
-  ...
-`
-
-const Users = () =>
-    <Query query={ALL_USERS} pollInterval={1000}>
-        
-        ...
-
-    </Query>
-
-export default Users
-```
-
-### Create Authorized User Component
-
-__src/components/AuthorizedUser.js__
-```javascript
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
-
- class AuthorizedUser extends Component {
-     render() {
-        console.log('withRouter adds props: ', this.props)
-        return <button>Sign In with Github</button>
-    }
- }
-
- export default withRouter(AuthorizedUser) 
-```
-
-### Put it all together
-
-__src/components/App.js__
-```javascript
-import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import AuthorizedUser from './AuthorizedUser'
-import Users from './Users'
-
-const App = () =>
-    <BrowserRouter>
-        <div>
-            <AuthorizedUser />
-            <Users />
-        </div>
-       
-    </BrowserRouter>
-
-export default App
+render(
+  <ApolloProvider client={client}>
+    <h1>Hello World</h1>
+  </ApolloProvider>,
+  document.getElementById('root')
+)  
 ```
 
 Iterations
@@ -93,7 +37,7 @@ Iterations
 
 1. [x] Create React App
 2. [x] Apollo Client Setup
-3. [x] Sending a Test Query
+3. [ ] Sending a Test Query
 
 ### b. Handling Users
 
