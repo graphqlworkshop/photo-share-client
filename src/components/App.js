@@ -9,7 +9,6 @@ const App = () =>
             <AuthorizedUser />
             <Users />
         </div>
-       
     </BrowserRouter>
 
 export default App
