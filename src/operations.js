@@ -17,6 +17,16 @@ export const ROOT_QUERY = gql`
         allUsers {
             ...userDetails
         }
+        allPhotos {
+            id
+            name
+            url
+            created
+            postedBy {
+                name
+                avatar
+            }
+        }
     }
 
     ${FRAGMENT_USER_DETAILS}
