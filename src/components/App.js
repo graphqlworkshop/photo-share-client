@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import AuthorizedUser from './AuthorizedUser'
 import Users from './Users'
+import Photos from './Photos'
 import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
 import { UserInterface } from './ui'
 
@@ -37,7 +38,7 @@ class App extends Component {
         return (
             <BrowserRouter>
                 <UserInterface menu={<Menu />}>
-                    <h1>Main Content</h1>
+                   <Photos />
                 </UserInterface>
             </BrowserRouter>
         )

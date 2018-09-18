@@ -5,41 +5,71 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Simplify the Users component
+### Add Photos to Root Query
 
-__src/components/Users.js__
+__src/operations.js__
 ```javascript
-import React from 'react'
-import { Query } from 'react-apollo'
-import { ROOT_QUERY } from '../operations'
-import { UserList } from './ui'
-
-const Users = () =>
-    <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
-        {({ data, loading }) => 
-            <UserList users={data.allUsers} loading={loading} />
+export const ROOT_QUERY = gql`
+    query everything {
+        me {
+            ...userDetails
         }
-    </Query>
+        totalUsers
+        allUsers {
+            ...userDetails
+        }
+        allPhotos {
+            id
+            name
+            url
+            created
+            postedBy {
+                name
+                avatar
+            }
+        }
+    }
 
-export default Users
+    ${FRAGMENT_USER_DETAILS}
+`
 ```
 
-### Simplify the Me component
+### Create a Photos Component
 
-__src/components/AuthorizedUser.js__
+__src/components/App.js__
 ```javascript
-import { Auth } from './ui'
+import Photos from './Photos'
 
-const Me = ({ signingIn=false, logout=f=>f, onPostPhotoClick=f=>f }) =>
+...
+
+render() {
+    return (
+        <BrowserRouter>
+            <UserInterface menu={<Menu />}>
+                <Photos />
+            </UserInterface>
+        </BrowserRouter>
+    )
+}
+```
+
+### Query and Display the Photos
+
+__src/components/Photos.js__
+```javascript
+import React from 'react'
+import { PhotoCards } from './ui'
+import { Query } from 'react-apollo'
+import { ROOT_QUERY } from '../operations'
+
+const Photos = () => 
     <Query query={ROOT_QUERY}>
-        {({ loading, data, client }) => 
-            <Auth me={data.me} loading={loading} 
-                    clientID={process.env.REACT_APP_GITHUB_CLIENT_ID}
-                    signingIn={signingIn} 
-                    onSignOut={() => logout(client)} 
-                    onPostPhotoClick={onPostPhotoClick} />
+        {({ data, loading }) => 
+            <PhotoCards photos={data.allPhotos} loading={loading} />
         }
     </Query>
+
+export default Photos
 ```
 
 Iterations
@@ -78,5 +108,7 @@ Iterations
 ### f. Posting Photos
 
 1. [x] Adding all photos to `ROOT_QUERY`
-2. [x] Posting Photos
-3. [ ] Adding Photo Subscriptions
+2. [ ] Set-up Post Photo Form
+3. [ ] Adding the `POST_PHOTO_MUTATION`
+4. [ ] Updating the Local Cache
+5. [ ] Adding Photo Subscriptions
