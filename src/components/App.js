@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import AuthorizedUser from './AuthorizedUser'
 import Users from './Users'
 import Photos from './Photos'
+import PostPhoto from './PostPhoto'
 import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
 import { UserInterface } from './ui'
 
@@ -38,7 +39,10 @@ class App extends Component {
         return (
             <BrowserRouter>
                 <UserInterface menu={<Menu />}>
-                   <Photos />
+                    <Switch>
+                        <Route exact path="/" component={Photos} />
+                        <Route path="/newPhoto" component={PostPhoto} />
+                    </Switch>
                 </UserInterface>
             </BrowserRouter>
         )
