@@ -83,3 +83,18 @@ export const LISTEN_FOR_USERS = gql`
 
     ${FRAGMENT_USER_DETAILS}
 `
+
+export const LISTEN_FOR_PHOTOS = gql`
+    subscription {
+        newPhoto {
+            id
+            name
+            url
+            created
+            postedBy {
+                avatar
+                name
+            }
+        }
+    }
+`

@@ -5,29 +5,13 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Incorporate Apollo Upload Client
-
-`yarn add apollo-upload-client`
-
-__src/photo-share-client.js__
-```javascript
-import { createUploadLink } from 'apollo-upload-client'
-
-...
-
-const httpLink = createUploadLink({
-    includeExtensions: true,
-    uri: 'http://localhost:4000/graphql'
-})
-```
-
-### Add the Post Photo Mutation
+### Add the Listen For Photos Operation
 
 __src/operations.js__
 ```javascript
-export const POST_PHOTO = gql`
-    mutation addPhoto($input: PostPhotoInput!) {
-        postPhoto(input:$input) {
+export const LISTEN_FOR_PHOTOS = gql`
+    subscription {
+        newPhoto {
             id
             name
             url
@@ -41,68 +25,30 @@ export const POST_PHOTO = gql`
 `
 ```
 
-### Add Routes for Post Photo Form
+### Listen for incoming photos
 
-__src/components/App.js__
 ```javascript
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import PostPhoto from './PostPhoto'
-
-...
-
-render() {
-    return (
-        <BrowserRouter>
-            <UserInterface menu={<Menu />}>
-                <Switch>
-                    <Route exact path="/" component={Photos} />
-                    <Route path="/newPhoto" component={PostPhoto} />
-                </Switch>
-            </UserInterface>
-        </BrowserRouter>
-    )
-}
-```
-
-### Connect the Post Photo Form
-
-__src/components/PostPhoto.js__
-```javascript
-import React from 'react'
-import { POST_PHOTO } from '../operations'
-import { Mutation } from 'react-apollo'
-import { PostPhotoForm } from './ui'
-
-const PostPhoto = ({ history, location }) => {
-
-    const photoFile = location.state && location.state.photoToUpload
-    const photoSrc = location.state && location.state.photoSrc
-    const token = localStorage.getItem('token')
-
-    if (!token) {
-        history.replace('/')
-    }
-
-    return (
-        <Mutation mutation={POST_PHOTO}>
-            {mutation => 
-                <PostPhotoForm 
-                    photoFile={photoFile} 
-                    photoSrc={photoSrc} 
-                    onSubmit={input => {
-                        console.log(input)
-                        mutation({ variables: { input }})
-                            .then(() => history.push('/'))
-                            .catch(console.error)
-                    }} 
-                />
-            }
-        </Mutation>
-    )
-}
+componentDidMount() {
     
+    ...
+    
+    this.listenForPhotos = client
+        .subscribe({ query: LISTEN_FOR_PHOTOS })
+        .subscribe(({ data:{ newPhoto } }) => {
+            const data = client.readQuery({ query: ROOT_QUERY })
+            data.totalPhotos += 1
+            data.allPhotos = [
+                ...data.allPhotos,
+                newPhoto
+            ]
+            client.writeQuery({ query: ROOT_QUERY, data })
+        })       
+}
 
-export default PostPhoto    
+componentWillUnmount() {
+    this.listenForUsers.unsubscribe()
+    this.listenForPhotos.unsubscribe()
+}
 ```
 
 Iterations
@@ -142,4 +88,4 @@ Iterations
 
 1. [x] Adding all photos to `ROOT_QUERY`
 2. [x] Posting Photos
-3. [ ] Adding Photo Subscriptions
+3. [x] Adding Photo Subscriptions

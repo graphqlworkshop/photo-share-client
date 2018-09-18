@@ -5,7 +5,7 @@ import AuthorizedUser from './AuthorizedUser'
 import Users from './Users'
 import Photos from './Photos'
 import PostPhoto from './PostPhoto'
-import { ROOT_QUERY, LISTEN_FOR_USERS } from '../operations'
+import { ROOT_QUERY, LISTEN_FOR_USERS, LISTEN_FOR_PHOTOS } from '../operations'
 import { UserInterface } from './ui'
 
 const Menu = () => 
@@ -29,10 +29,22 @@ class App extends Component {
                 ]
                 client.writeQuery({ query: ROOT_QUERY, data })
             }) 
+        this.listenForPhotos = client
+            .subscribe({ query: LISTEN_FOR_PHOTOS })
+            .subscribe(({ data:{ newPhoto } }) => {
+                const data = client.readQuery({ query: ROOT_QUERY })
+                data.totalPhotos += 1
+                data.allPhotos = [
+                    ...data.allPhotos,
+                    newPhoto
+                ]
+                client.writeQuery({ query: ROOT_QUERY, data })
+            })       
     }
 
     componentWillUnmount() {
         this.listenForUsers.unsubscribe()
+        this.listenForPhotos.unsubscribe()
     }
 
     render() {
