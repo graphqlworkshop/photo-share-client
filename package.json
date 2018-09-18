@@ -6,6 +6,7 @@
     "apollo-boost": "^0.1.16",
     "apollo-cache-persist": "^0.1.1",
     "apollo-link-ws": "^1.0.9",
+    "apollo-upload-client": "^8.1.0",
     "graphql": "^14.0.2",
     "hammerjs": "^2.0.8",
     "material-ui": "^0.20.2",

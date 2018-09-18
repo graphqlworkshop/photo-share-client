@@ -5,40 +5,48 @@ PhotoShare Client is the main front-end  exercise for [GraphQL Workshop](https:/
 Contents
 ---------------
 
-### Add Photos to Root Query
+### Incorporate Apollo Upload Client
+
+`yarn add apollo-upload-client`
+
+__src/photo-share-client.js__
+```javascript
+import { createUploadLink } from 'apollo-upload-client'
+
+...
+
+const httpLink = createUploadLink({
+    includeExtensions: true,
+    uri: 'http://localhost:4000/graphql'
+})
+```
+
+### Add the Post Photo Mutation
 
 __src/operations.js__
 ```javascript
-export const ROOT_QUERY = gql`
-    query everything {
-        me {
-            ...userDetails
-        }
-        totalUsers
-        allUsers {
-            ...userDetails
-        }
-        allPhotos {
+export const POST_PHOTO = gql`
+    mutation addPhoto($input: PostPhotoInput!) {
+        postPhoto(input:$input) {
             id
             name
             url
             created
             postedBy {
-                name
                 avatar
+                name
             }
         }
     }
-
-    ${FRAGMENT_USER_DETAILS}
 `
 ```
 
-### Create a Photos Component
+### Add Routes for Post Photo Form
 
 __src/components/App.js__
 ```javascript
-import Photos from './Photos'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import PostPhoto from './PostPhoto'
 
 ...
 
@@ -46,30 +54,55 @@ render() {
     return (
         <BrowserRouter>
             <UserInterface menu={<Menu />}>
-                <Photos />
+                <Switch>
+                    <Route exact path="/" component={Photos} />
+                    <Route path="/newPhoto" component={PostPhoto} />
+                </Switch>
             </UserInterface>
         </BrowserRouter>
     )
 }
 ```
 
-### Query and Display the Photos
+### Connect the Post Photo Form
 
-__src/components/Photos.js__
+__src/components/PostPhoto.js__
 ```javascript
 import React from 'react'
-import { PhotoCards } from './ui'
-import { Query } from 'react-apollo'
-import { ROOT_QUERY } from '../operations'
+import { POST_PHOTO } from '../operations'
+import { Mutation } from 'react-apollo'
+import { PostPhotoForm } from './ui'
 
-const Photos = () => 
-    <Query query={ROOT_QUERY}>
-        {({ data, loading }) => 
-            <PhotoCards photos={data.allPhotos} loading={loading} />
-        }
-    </Query>
+const PostPhoto = ({ history, location }) => {
 
-export default Photos
+    const photoFile = location.state && location.state.photoToUpload
+    const photoSrc = location.state && location.state.photoSrc
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+        history.replace('/')
+    }
+
+    return (
+        <Mutation mutation={POST_PHOTO}>
+            {mutation => 
+                <PostPhotoForm 
+                    photoFile={photoFile} 
+                    photoSrc={photoSrc} 
+                    onSubmit={input => {
+                        console.log(input)
+                        mutation({ variables: { input }})
+                            .then(() => history.push('/'))
+                            .catch(console.error)
+                    }} 
+                />
+            }
+        </Mutation>
+    )
+}
+    
+
+export default PostPhoto    
 ```
 
 Iterations
@@ -108,7 +141,5 @@ Iterations
 ### f. Posting Photos
 
 1. [x] Adding all photos to `ROOT_QUERY`
-2. [ ] Set-up Post Photo Form
-3. [ ] Adding the `POST_PHOTO_MUTATION`
-4. [ ] Updating the Local Cache
-5. [ ] Adding Photo Subscriptions
+2. [x] Posting Photos
+3. [ ] Adding Photo Subscriptions
