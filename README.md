@@ -19,7 +19,7 @@ Within the `src/components/ui` folder you will find a set of pre-built presentat
 Iterations
 ---------------
 
-### a. Start
+### a. Apollo Client
 
 1. [x] Create React App
 2. [ ] Apollo Client Setup
@@ -29,39 +29,28 @@ Iterations
 
 1. [ ] Add `ALL_USERS` Query
 2. [ ] Add `TEST_USER` Mutation
-3. [ ] Setting the `pollInterval`
 
 ### c. Github Authorization
 
-1. [ ] Environment Variables
-2. [ ] Adding the React Router
-3. [ ] Obtaining the Github Code
-4. [ ] Authorizing with Github
-5. [ ] Identifying the user with `ME` Query
-6. [ ] Refetching `ALL_USERS_QUERY`
-7. [ ] Handling Logging Out
+1. [ ] React Configuration
+2. [ ] Authorizing with Github
+3. [ ] Refetching `ALL_USERS_QUERY`
+4. [ ] Identifying the user with `ME` Query
+5. [ ] Handling Logging Out
 
 ### d. Incorporating Subscriptions
 
 1. [ ] Adding a WebSocket Link
 2. [ ] Persisting Data
 3. [ ] Subscribing to new users
-4. [ ] Updating the local cache
 
 ### e. Incorporating the UI
 
 1. [ ] Incorporating the Main User Interface
-2. [ ] Incorporating the UserList UI Component
-3. [ ] Adding Fake User Authorization
-4. [ ] Incorporating the Auth UI Component
+2. [ ] Incorporating UI for Users
 
 ### f. Posting Photos
 
-1. [ ] Modify the `httpLink` for uploads
-2. [ ] Adding `ALL_PHOTOS` Query
-3. [ ] Routing to the Post Photo Form
-4. [ ] Incorporating the Post Photo Form
-5. [ ] Adding the `POST_PHOTO_MUTATION`
-6. [ ] Incorporating the PhotoList UI Component
-7. [ ] Updating the Local Cache
-9. [ ] Adding Photo Subscriptions
+1. [ ] Adding all photos to `ROOT_QUERY`
+2. [ ] Posting Photos
+3. [ ] Adding Photo Subscriptions

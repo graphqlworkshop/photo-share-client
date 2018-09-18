@@ -14,7 +14,7 @@ export const UserList = ({ loading=false, users=[], onClick=f=>f, onDoubleClick=
     <AllUsers>
         <List>
             {users.map(user => 
-                <ListItem key={user.id}
+                <ListItem key={user.githubLogin}
                     className="user-row" 
                     leftAvatar={<Avatar src={user.avatar} />}
                     onClick={() => onClick(user)}
